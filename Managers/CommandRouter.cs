@@ -1,8 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Newtonsoft.Json.Linq;
 using TwitchLib.Client;
 using TwitchLib.Client.Events;
 using TwitchLib.Client.Models;
@@ -18,16 +21,18 @@ namespace ZennMusic.Managers
             };
 
         private static readonly TwitchClient _client = new TwitchClient();
+        private static JObject config;
 
         public static void Initialize()
         {
+            InitializeConfigure();
             InitializeClient();
         }
 
         private static void InitializeClient()
         {
-            var botId = string.Empty;
-            var botToken = string.Empty;
+            var botId = config["BotID"].Value<string>();
+            var botToken = Encoding.ASCII.GetString(Convert.FromBase64String(config["BotToken"].Value<string>()));
 
             var credentials = new ConnectionCredentials(botId, botToken);
             _client.Initialize(credentials, "producerzenn");
@@ -39,6 +44,7 @@ namespace ZennMusic.Managers
 
         private static void OnMessageReceived(object sender, OnMessageReceivedArgs args)
         {
+            Debug.WriteLine($"MSG:  {args.ChatMessage.Message}");
             if (!IsValidCommand(args.ChatMessage.Message))
                 return;
 
@@ -54,6 +60,14 @@ namespace ZennMusic.Managers
                 return false;
 
             return true;
+        }
+
+        private static void InitializeConfigure()
+        {
+            var curPath = Directory.GetCurrentDirectory();
+            var filePath = Path.Combine(curPath, "config.json");
+
+            config = JObject.Parse(File.ReadAllText(filePath));
         }
     }
 }
