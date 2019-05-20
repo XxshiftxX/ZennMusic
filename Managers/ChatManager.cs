@@ -12,7 +12,7 @@ using TwitchLib.Client.Models;
 
 namespace ZennMusic.Managers
 {
-    class CommandRouter
+    class ChatManager
     {
         public static readonly Dictionary<string, Action<OnMessageReceivedArgs, string[]>> Commands = 
             new Dictionary<string, Action<OnMessageReceivedArgs, string[]>>()
