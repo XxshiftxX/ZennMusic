@@ -4,9 +4,221 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:ZennMusic"
+        xmlns:cvt="clr-namespace:ZennMusic.Converter"
         mc:Ignorable="d"
         Title="MainWindow" Height="450" Width="800">
+    <Window.Resources>
+        <Style x:Key="MyButton" TargetType="{x:Type Button}">
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Border.Background"
+                                        TargetName="ButtonBackground"
+                                        Value="#D0D0D0"></Setter>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                        <Grid Width="{TemplateBinding Width}" Height="{TemplateBinding Height}" ClipToBounds="True">
+                            <Border x:Name="ButtonBackground" Background="White" CornerRadius="10"/>
+                            <ContentPresenter VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                        </Grid>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <Style x:Key="MyToggleButton" TargetType="{x:Type ToggleButton}">
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ToggleButton">
+                        <Grid Width="{TemplateBinding Width}" Height="{TemplateBinding Height}">
+                            <VisualStateManager.VisualStateGroups>
+                                <VisualStateGroup x:Name="CommonStates">
+                                    <VisualState x:Name="Normal" />
+                                    <VisualState x:Name="MouseOver"/>
+                                    <VisualState x:Name="Pressed" />
+                                    <VisualState x:Name="Disabled">
+                                        <Storyboard>
+                                            <ColorAnimationUsingKeyFrames Storyboard.TargetProperty="Background.(SolidColorBrush.Color)"
+                                          Storyboard.TargetName="ButtonBackground">
+                                                <EasingColorKeyFrame KeyTime="0"
+                                   Value="White" />
+                                            </ColorAnimationUsingKeyFrames>
+                                        </Storyboard>
+                                    </VisualState>
+                                </VisualStateGroup>
+                                <VisualStateGroup x:Name="CheckStates">
+                                    <VisualState x:Name="Checked">
+                                        <Storyboard>
+                                            <ColorAnimationUsingKeyFrames Storyboard.TargetProperty="Background.(SolidColorBrush.Color)"
+                                          Storyboard.TargetName="ButtonBackground">
+                                                <EasingColorKeyFrame KeyTime="0"
+                                   Value="#D0D0D0" />
+                                            </ColorAnimationUsingKeyFrames>
+                                        </Storyboard>
+                                    </VisualState>
+                                    <VisualState x:Name="Unchecked" />
+                                    <VisualState x:Name="Indeterminate" />
+                                </VisualStateGroup>
+                            </VisualStateManager.VisualStateGroups>
+
+                            <Border x:Name="ButtonBackground" Background="White" CornerRadius="10"/>
+                            <ContentPresenter VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                        </Grid>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <ControlTemplate x:Key="MyComboBox_TextBox" TargetType="{x:Type TextBox}">
+            <Border x:Name="PART_ContentHost"
+                    Focusable="False"/>
+        </ControlTemplate>
+        <Style x:Key="MyComboBox" TargetType="{x:Type ComboBox}">
+            <Setter Property="OverridesDefaultStyle" Value="True" />
+            <Setter Property="MinWidth" Value="120" />
+            <Setter Property="MinHeight" Value="20" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type ComboBox}">
+                        <Grid>
+                            <VisualStateManager.VisualStateGroups>
+
+                            </VisualStateManager.VisualStateGroups>
+                            <ToggleButton x:Name="ToggleButton"
+                                          Style="{StaticResource MyToggleButton}"
+                                          Grid.Column="2"
+                                          Focusable="false"
+                                          ClickMode="Press"
+                                          IsChecked="{Binding IsDropDownOpen, Mode=TwoWay, RelativeSource={RelativeSource TemplatedParent}}"/>
+                            <ContentPresenter x:Name="ContentSite"
+                                              IsHitTestVisible="False"
+                                              Content="{TemplateBinding SelectionBoxItem}"
+                                              ContentTemplate="{TemplateBinding SelectionBoxItemTemplate}"
+                                              ContentTemplateSelector="{TemplateBinding ItemTemplateSelector}"
+                                              Margin="10,3,23,3"
+                                              VerticalAlignment="Center"
+                                              HorizontalAlignment="Left">
+                            </ContentPresenter>
+                            <TextBox x:Name="PART_EditableTextBox"
+                                     HorizontalAlignment="Left"
+                                     VerticalAlignment="Bottom"
+                                     Margin="3,3,23,3"
+                                     Focusable="True"
+                                     Background="Transparent"
+                                     Visibility="Hidden"
+                                     IsReadOnly="{TemplateBinding IsReadOnly}"></TextBox>
+                            <Popup x:Name="Popup"
+                                   Placement="Bottom"
+                                   IsOpen="{TemplateBinding IsDropDownOpen}"
+                                   AllowsTransparency="True"
+                                   Focusable="False"
+                                   PopupAnimation="Slide">
+                                <Grid x:Name="DropDown" SnapsToDevicePixels="True" MinWidth="{TemplateBinding ActualWidth}" MaxHeight="{TemplateBinding MaxDropDownHeight}">
+                                    <Border x:Name="DropDownBorder" BorderThickness="1" Background="White" Margin="0, -12, 0 0">
+                                    </Border>
+                                    <ScrollViewer Margin="4,6,4,6" SnapsToDevicePixels="True">
+                                        <StackPanel IsItemsHost="True" KeyboardNavigation.DirectionalNavigation="Contained" />
+                                    </ScrollViewer>
+                                </Grid>
+                            </Popup>
+                        </Grid>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="HasItems" Value="false">
+                                <Setter TargetName="DropDownBorder" Property="MinHeight" Value="95" />
+                            </Trigger>
+                            <Trigger Property="IsGrouping" Value="true">
+                                <Setter Property="ScrollViewer.CanContentScroll" Value="false" />
+                            </Trigger>
+                            <Trigger SourceName="Popup" Property="AllowsTransparency" Value="true">
+                                <Setter TargetName="DropDownBorder" Property="CornerRadius" Value="4" />
+                                <Setter TargetName="DropDownBorder" Property="Margin" Value="0,2,0,0" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <FontFamily x:Key="MyFont">NanumGothic</FontFamily>
+        <cvt:FontNameConverter x:Key="FConverter" />
+    </Window.Resources>
     <Grid>
-        
+        <Grid.RowDefinitions>
+            <RowDefinition Height="50"/>
+            <RowDefinition Height="30"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="60"/>
+        </Grid.RowDefinitions>
+        <Border Background="#181818" Height="45" VerticalAlignment="Top" Grid.ColumnSpan="2">
+            <Border.Effect>
+                <DropShadowEffect Direction="0" ShadowDepth="0"></DropShadowEffect>
+            </Border.Effect>
+        </Border>
+        <ComboBox x:Name="FontComboBox" Margin="13, 0, 0, 5" Width="220" Height="23" HorizontalAlignment="Left"
+                  Style="{StaticResource MyComboBox}" SelectionChanged="OnFontSelected"
+                  ItemsSource="{Binding Source={x:Static Fonts.SystemFontFamilies}}">
+            <ComboBox.ItemTemplate>
+                <DataTemplate>
+                    <TextBlock Text="{Binding Path=FamilyNames, Converter={StaticResource FConverter}}" FontFamily="{Binding}"/>
+                </DataTemplate>
+            </ComboBox.ItemTemplate>
+        </ComboBox>
+        <StackPanel Grid.Row="0" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0, 0, 0, 5" Grid.ColumnSpan="2">
+            <ToggleButton Style="{StaticResource MyToggleButton}" Margin="13, 10"
+                          Checked="OnRequestToggleChecked"
+                          Unchecked="OnRequestToggleUnchecked"
+                          Focusable="False">
+                <TextBlock FontFamily="NanumSquare" Margin="13, 0">
+                    곡 신청 활성화
+                </TextBlock>
+            </ToggleButton>
+            <Button Style="{StaticResource MyButton}" Margin="13, 10" Click="OnNextSongButtonClick">
+                <TextBlock FontFamily="NanumSquare" Margin="13, 0">
+                    다음곡
+                </TextBlock>
+            </Button>
+        </StackPanel>
+        <TextBlock x:Name="SongCountText" Margin="10, 0, 0, 0" Grid.Row="1" FontSize="15" VerticalAlignment="Center" FontFamily="NanumGothic">
+            현재 0개의 곡이 신청되었습니다.
+        </TextBlock>
+        <ListBox x:Name="SongRequestListBox" Grid.Row="2" Background="Transparent" BorderThickness="0" Grid.ColumnSpan="2" HorizontalContentAlignment="Stretch" Focusable="False">
+            <ListBox.ItemContainerStyle>
+                <Style TargetType="Control">
+                    <Setter Property="KeyboardNavigation.ControlTabNavigation" Value="None" />
+                </Style>
+            </ListBox.ItemContainerStyle>
+            <ListBox.ContextMenu>
+                <ContextMenu>
+                    <MenuItem Header="삭제" Click="OnSongDelete"/>
+                    <MenuItem Header="환불" Click="OnSongRefund"/>
+                </ContextMenu>
+            </ListBox.ContextMenu>
+            <ListBox.ItemTemplate>
+                <DataTemplate>
+                    <Grid Focusable="False">
+                        <StackPanel Orientation="Vertical" Margin="10, 5">
+                            <TextBlock Text="{Binding SongName}" FontSize="23" Margin="0, 2" FontFamily="{DynamicResource MyFont}"></TextBlock>
+                            <TextBlock Text="{Binding Requester}" FontSize="12" FontFamily="{DynamicResource MyFont}"></TextBlock>
+                        </StackPanel>
+                    </Grid>
+                </DataTemplate>
+            </ListBox.ItemTemplate>
+        </ListBox>
+        <Grid Grid.Row="3" Grid.ColumnSpan="2" Background="#181818" Margin="0, 8, 0, 0">
+            <Grid.Effect>
+                <DropShadowEffect Direction="0" ShadowDepth="0"/>
+            </Grid.Effect>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="150"/>
+            </Grid.ColumnDefinitions>
+            <TextBox x:Name="CustomInputBox" Margin="15, 5" 
+                     Background="Transparent" BorderThickness="0"
+                     VerticalAlignment="Center"
+                     FontSize="17"
+                     Foreground="White" KeyDown="OnKeyDown"
+                     ></TextBox>
+            <Rectangle Fill="White" Height="2" Margin="15, 5" VerticalAlignment="Bottom"></Rectangle>
+            <Button Style="{StaticResource MyButton}" Grid.Column="1" Margin="25, 10" Click="OnCustomSongButtonClick">추가</Button>
+        </Grid>
     </Grid>
 </Window>

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -14,14 +15,9 @@ namespace ZennMusic.Managers
 {
     class ChatManager
     {
-        public static readonly Dictionary<string, Action<OnMessageReceivedArgs, string[]>> Commands = 
-            new Dictionary<string, Action<OnMessageReceivedArgs, string[]>>()
-            {
-
-            };
-
+        private static string _channel = "qjfrntop";
         private static readonly TwitchClient _client = new TwitchClient();
-        private static JObject config;
+        private static JObject _config;
 
         public static void Initialize()
         {
@@ -29,13 +25,15 @@ namespace ZennMusic.Managers
             InitializeClient();
         }
 
+        public static void SendMessage(string message) => _client.SendMessage(new JoinedChannel(_channel), message);
+
         private static void InitializeClient()
         {
-            var botId = config["BotID"].Value<string>();
-            var botToken = Encoding.ASCII.GetString(Convert.FromBase64String(config["BotToken"].Value<string>()));
+            var botId = _config["BotID"].Value<string>();
+            var botToken = Encoding.ASCII.GetString(Convert.FromBase64String(_config["BotToken"].Value<string>()));
 
             var credentials = new ConnectionCredentials(botId, botToken);
-            _client.Initialize(credentials, "producerzenn");
+            _client.Initialize(credentials, _channel);
 
             _client.OnMessageReceived += OnMessageReceived;
 
@@ -44,19 +42,18 @@ namespace ZennMusic.Managers
 
         private static void OnMessageReceived(object sender, OnMessageReceivedArgs args)
         {
-            Debug.WriteLine($"MSG:  {args.ChatMessage.Message}");
             if (!IsValidCommand(args.ChatMessage.Message))
                 return;
 
-            var command = args.ChatMessage.Message.Split()[1];
-            Commands[command](args, args.ChatMessage.Message.Split().Skip(1).ToArray());
+            var command = args.ChatMessage.Message.Split().Skip(1).First();
+            CommandManager.Commands[command](args, args.ChatMessage.Message.Split().Skip(2).ToArray());
         }
         
         private static bool IsValidCommand(string message)
         {
-            if (!message.StartsWith("!"))
+            if (!message.StartsWith("=젠 "))
                 return false;
-            if (!Commands.ContainsKey(new string(message.Split()[0].Skip(1).ToArray())))
+            if (!CommandManager.Commands.ContainsKey(message.Split().Skip(1).First()))
                 return false;
 
             return true;
@@ -67,7 +64,7 @@ namespace ZennMusic.Managers
             var curPath = Directory.GetCurrentDirectory();
             var filePath = Path.Combine(curPath, "config.json");
 
-            config = JObject.Parse(File.ReadAllText(filePath));
+            _config = JObject.Parse(File.ReadAllText(filePath));
         }
     }
 }
