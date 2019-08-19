@@ -1,7 +1,8 @@
 ﻿using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
-using ZennMusic.Model;
+using System.Windows.Data;
+using ZennMusic.Models;
 
 namespace ZennMusic.Managers
 {

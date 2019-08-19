@@ -12,9 +12,6 @@ namespace ZennMusic.Managers
 {
     class SheetManager
     {
-        public static string PieceSpreadSheetId = "1fndP3ddyqehCIn6vcpEiZOOixzYN6MX8puCnLdOIqgM";
-
-
         public static SheetsService Service { get; private set; }
 
 
@@ -77,7 +74,7 @@ namespace ZennMusic.Managers
         {
             const string range = "시트1!B6:E";
 
-            var request = Service.Spreadsheets.Values.Get(PieceSpreadSheetId, range);
+            var request = Service.Spreadsheets.Values.Get(ConfigManager.PieceSpreadSheetId, range);
             var response = request.Execute().Values;
 
             return response;
@@ -105,7 +102,7 @@ namespace ZennMusic.Managers
                 }
             };
 
-            var setRequest = Service.Spreadsheets.Values.Update(body, PieceSpreadSheetId, range);
+            var setRequest = Service.Spreadsheets.Values.Update(body, ConfigManager.PieceSpreadSheetId, range);
             setRequest.ValueInputOption =
                 SpreadsheetsResource.ValuesResource.UpdateRequest.ValueInputOptionEnum.USERENTERED;
             setRequest.Execute();
