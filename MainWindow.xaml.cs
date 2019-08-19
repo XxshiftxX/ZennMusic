@@ -14,7 +14,7 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 using ZennMusic.Enums;
 using ZennMusic.Managers;
-using ZennMusic.Model;
+using ZennMusic.Models;
 using CommandManager = System.Windows.Input.CommandManager;
 
 namespace ZennMusic
@@ -72,7 +72,7 @@ namespace ZennMusic
             if (SongManager.SongList.Count <= 0)
                 return;
 
-            SongManager.RemovedSongList.Add(SongManager.SongList[0]);
+            SongManager.SongList.Add(SongManager.SongList[0]);
             SongManager.SongList.RemoveAt(0);
         }
 

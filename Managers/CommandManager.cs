@@ -6,7 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using TwitchLib.Client.Events;
 using ZennMusic.Enums;
-using ZennMusic.Model;
+using ZennMusic.Models;
 
 namespace ZennMusic.Managers
 {
@@ -32,7 +32,7 @@ namespace ZennMusic.Managers
         {
             var type = cmdArgs[0];
             var name = cmdArgs[1];
-            var point = int.Parse(cmdArgs[2] ?? "1");
+            var point = (cmdArgs.Length > 2) ? int.Parse(cmdArgs[2]) : 1;
 
             var currentPoint = SheetManager.GetUserPoint(name);
 
@@ -58,7 +58,7 @@ namespace ZennMusic.Managers
                 return;
 
             SongManager.SongList.Add(new Song(song, name, point.Ticket > 0 ? RequestType.Ticket : RequestType.Piece));
-            ChatManager.SendMessage($"");
+            // ChatManager.SendMessage($"{name}님의 {}");
         }
     }
 }
