@@ -14,7 +14,7 @@ namespace ZennMusic.Managers
     {
         public static SheetsService Service { get; private set; }
 
-
+        [Log]
         public static void Initialize()
         {
             var credential = GetCredential();
@@ -26,6 +26,7 @@ namespace ZennMusic.Managers
             });
         }
 
+        [Log]
         public static UserCredential GetCredential()
         {
             const string credentialPath = "token.json";
@@ -42,6 +43,7 @@ namespace ZennMusic.Managers
             }
         }
 
+        [Log]
         public static (int Piece, int Ticket) GetUserPoint(string name)
         {
             var sheet = GetSheet();
@@ -56,6 +58,7 @@ namespace ZennMusic.Managers
             return (result[0], result[1]);
         }
 
+        [Log]
         public static void SetPiece(string name, int piece)
         {
             var index = GetUserIndex(name);
@@ -63,6 +66,7 @@ namespace ZennMusic.Managers
             SetValue($"시트1!C{index + 6}", piece);
         }
 
+        [Log]
         public static void SetTicket(string name, int ticket)
         {
             var index = GetUserIndex(name);
@@ -70,6 +74,7 @@ namespace ZennMusic.Managers
             SetValue($"시트1!D{index + 6}", ticket);
         }
 
+        [Log]
         private static IList<IList<object>> GetSheet()
         {
             const string range = "시트1!B6:E";
@@ -80,6 +85,7 @@ namespace ZennMusic.Managers
             return response;
         }
 
+        [Log]
         private static int GetUserIndex(string name)
         {
             var sheet = GetSheet();
@@ -92,6 +98,7 @@ namespace ZennMusic.Managers
             return result.index;
         }
 
+        [Log]
         private static void SetValue(string range, object value)
         {
             var body = new ValueRange
