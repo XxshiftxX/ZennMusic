@@ -20,6 +20,7 @@ namespace ZennMusic.Managers
                 { "신청", RequestSongCommand }
             };
 
+        [Log]
         private static void GetPointCommand(OnMessageReceivedArgs msgArgs, string[] cmdArgs)
         {
             var name = msgArgs.ChatMessage.DisplayName;
@@ -28,6 +29,7 @@ namespace ZennMusic.Managers
             ChatManager.SendMessage($"[{name}] 조각 {point.Piece}개 / 티켓 {point.Ticket}장 보유중");
         }
 
+        [Log]
         private static void PayPointCommand(OnMessageReceivedArgs msgArgs, string[] cmdArgs)
         {
             var type = cmdArgs[0];
@@ -44,6 +46,7 @@ namespace ZennMusic.Managers
             ChatManager.SendMessage($"{name}님에게 {type} {point}개를 지급하였습니다.");
         }
 
+        [Log]
         private static void RequestSongCommand(OnMessageReceivedArgs msgArgs, string[] cmdArgs)
         {
             var song = string.Join(" ", cmdArgs);

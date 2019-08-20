@@ -39,7 +39,7 @@ namespace ZennMusic.Managers
         }
     }
 
-    public class InterceptorAttribute : Attribute, IMethodDecorator
+    public class LogAttribute : Attribute, IMethodDecorator
     {
         public MethodBase Method;
         public object[] Arguments;
