@@ -11,6 +11,7 @@ using Newtonsoft.Json.Linq;
 using TwitchLib.Client;
 using TwitchLib.Client.Events;
 using TwitchLib.Client.Models;
+using ZennMusic.Exceptions;
 
 namespace ZennMusic.Managers
 {
@@ -52,7 +53,14 @@ namespace ZennMusic.Managers
 
         private static void ExecuteCommand(Action action)
         {
-            Application.Current.Dispatcher.Invoke(action);
+            try
+            {
+                Application.Current.Dispatcher.Invoke(action);
+            }
+	        catch (CommandException exception)
+	        {
+                SendMessage(exception.ChatMessage);
+	        }
         }
         
         private static bool IsValidCommand(string message)
