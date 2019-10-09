@@ -4,6 +4,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using MethodDecorator.Fody.Interfaces;
+using System.Reflection;
 
 namespace ZennMusic.Managers
 {
@@ -11,7 +13,7 @@ namespace ZennMusic.Managers
     {
         private static FileStream _logger;
 
-        private string LogFileDirectory => Path.Combine(Directory.GetCurrentDirectory(), "Log");
+        private static string LogFileDirectory => Path.Combine(Directory.GetCurrentDirectory(), "Log");
         private static string CurrentTimeString => DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss:fff");
 
         public static void Initialize() 
@@ -20,7 +22,7 @@ namespace ZennMusic.Managers
             var LogFilePath = $@"{LogFileDirectory}\ZennLog {dateString}.txt";
 
             if (!Directory.Exists(LogFileDirectory))
-                Directory.CreateDirectory(LogDirectory);
+                Directory.CreateDirectory(LogFileDirectory);
             if (!File.Exists(LogFilePath))
                 File.Create(LogFilePath).Close();
 
@@ -53,6 +55,9 @@ namespace ZennMusic.Managers
 
         public void OnEntry()
             => LogManager.Log($"[Method Entry] {Method.Name}[{GetHashCode()}] >> ({ArgumentString})");
+
+        public void OnException(Exception exception)
+            => LogManager.Log($"[Exception] {Method.Name} >> {exception.ToString()}\n{exception.Message}");
 
         public void OnExit()
             => LogManager.Log($"[Method Exit]  {Method.Name}[{GetHashCode()}]");
