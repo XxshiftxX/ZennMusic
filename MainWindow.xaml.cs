@@ -28,6 +28,7 @@ namespace ZennMusic
         {
             InitializeComponent();
 
+            ConfigManager.Initialize();
             SheetManager.Initialize();
             ChatManager.Initialize();
             LogManager.Initialize();
@@ -72,7 +73,7 @@ namespace ZennMusic
             if (SongManager.SongList.Count <= 0)
                 return;
 
-            SongManager.SongList.Add(SongManager.SongList[0]);
+            SongManager.RemovedSongList.Add(SongManager.SongList[0]);
             SongManager.SongList.RemoveAt(0);
         }
 
@@ -102,7 +103,7 @@ namespace ZennMusic
         {
             if (SongRequestListBox.SelectedIndex == -1)
                 return null;
-            if (!(SongRequestListBox.SelectedItems is Song selectedItem))
+            if (!(SongRequestListBox.SelectedItem is Song selectedItem))
                 return null;
 
             SongManager.SongList.Remove(selectedItem);
@@ -110,7 +111,7 @@ namespace ZennMusic
             return selectedItem;
         }
 
-        private void OnKeyDown(object sender, KeyEventArgs e)
+        private void Window_KeyDown(object sender, KeyEventArgs e)
         {
             if ((Keyboard.Modifiers & ModifierKeys.Control) == ModifierKeys.Control)
             {
@@ -119,17 +120,21 @@ namespace ZennMusic
                 else if (e.Key == Key.S)
                     OnMoveKeyDown(false);
             }
+        }
+
+        private void OnKeyDown(object sender, KeyEventArgs e)
+        {
             if (e.Key == Key.Enter)
                 OnCustomSongButtonClick(null, null);
         }
 
         private void OnMoveKeyDown(bool isUp)
         {
-            if (SongRequestListBox.SelectedItem == null || !(SongRequestListBox.SelectedItems is Song request))
+            if (SongRequestListBox.SelectedItem == null || !(SongRequestListBox.SelectedItem is Song request))
                 return;
 
             var index = SongManager.SongList.IndexOf(request);
-            var newIndex = index + (isUp ? 1 : -1);
+            var newIndex = index + (isUp ? -1 : 1);
 
             if (newIndex < 0) return;
             if (newIndex >= SongManager.SongList.Count) return;

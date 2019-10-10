@@ -17,7 +17,6 @@ namespace ZennMusic.Managers
 {
     class ChatManager
     {
-        private static string _channel = "qjfrntop";
         private static readonly TwitchClient _client = new TwitchClient();
 
         public static void Initialize()
@@ -25,7 +24,7 @@ namespace ZennMusic.Managers
             InitializeClient();
         }
 
-        public static void SendMessage(string message) => _client.SendMessage(new JoinedChannel(_channel), message);
+        public static void SendMessage(string message) => _client.SendMessage(new JoinedChannel(ConfigManager.ServerID), message);
 
         private static void InitializeClient()
         {
@@ -33,7 +32,7 @@ namespace ZennMusic.Managers
             var botToken = ConfigManager.BotToken;
 
             var credentials = new ConnectionCredentials(botId, botToken);
-            _client.Initialize(credentials, _channel);
+            _client.Initialize(credentials, ConfigManager.ServerID);
 
             _client.OnMessageReceived += OnMessageReceived;
 
@@ -51,17 +50,25 @@ namespace ZennMusic.Managers
             ExecuteCommand(commandAction);
         }
 
-        private static void ExecuteCommand(Action action)
-        {
-            try
+        private static void ExecuteCommand(Action action) =>
+            Application.Current.Dispatcher.Invoke(() =>
             {
-                Application.Current.Dispatcher.Invoke(action);
-            }
-	        catch (CommandException exception)
-	        {
-                SendMessage(exception.ChatMessage);
-	        }
-        }
+                try
+                {
+                    action();
+                }
+                catch (CommandException exception)
+                {
+                    SendMessage(exception.ChatMessage);
+                }
+                catch (Exception exception)
+                {
+                    LogManager.Log("UNEXPECTED ERROR");
+                    LogManager.Log(exception.ToString(), false);
+                    LogManager.Log(exception.Message, false);
+                    LogManager.Log(exception.StackTrace, false);
+                }
+            });
         
         private static bool IsValidCommand(string message)
         {

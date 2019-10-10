@@ -7,6 +7,7 @@ using System.Threading;
 using Google.Apis.Services;
 using System.Collections.Generic;
 using Google.Apis.Sheets.v4.Data;
+using ZennMusic.Exceptions;
 
 namespace ZennMusic.Managers
 {
@@ -51,11 +52,25 @@ namespace ZennMusic.Managers
             var result = sheet
                 .Where(x => (x[0] as string) == name)
                 .FirstOrDefault()
-                .Skip(1)
+                ?.Skip(1).Take(2)
                 .Select(x => int.Parse((x as string) ?? "0"))
-                .ToArray();
+                .ToArray() ?? throw new UserNotFoundException(name);
 
             return (result[0], result[1]);
+        }
+
+        [Log]
+        public static string GetUserPrefix(string name)
+        {
+            var sheet = GetSheet();
+
+            var data = sheet
+                .Where(x => (x[0] as string) == name)
+                .FirstOrDefault();
+
+            if (data == null || data.Count < 4)
+                return null;
+            return data[3] as string;
         }
 
         [Log]
@@ -72,6 +87,14 @@ namespace ZennMusic.Managers
             var index = GetUserIndex(name);
 
             SetValue($"시트1!D{index + 6}", ticket);
+        }
+
+        [Log]
+        public static void SetUserPrefix(string name, string prefix)
+        {
+            var index = GetUserIndex(name);
+
+            SetValue($"시트1!E{index + 6}", prefix);
         }
 
         [Log]
@@ -92,8 +115,11 @@ namespace ZennMusic.Managers
 
             var result = sheet
                 .Select((x, i) => (value: x, index: i))
-                .Where(x => x.Item1[0] as string == name)
+                .Where(x => x.value[0] as string == name)
                 .FirstOrDefault();
+
+            if (result.value == null)
+                throw new UserNotFoundException(name);
 
             return result.index;
         }

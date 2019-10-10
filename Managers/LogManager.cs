@@ -32,6 +32,8 @@ namespace ZennMusic.Managers
         }
         public static void Log(string message, bool hasTimestamp = true) 
         {
+            if (_logger is null)
+                return;
             if (hasTimestamp)
                 message += $"[{CurrentTimeString}] ";
             
