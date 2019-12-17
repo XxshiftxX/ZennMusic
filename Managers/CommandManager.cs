@@ -107,6 +107,9 @@ namespace ZennMusic.Managers
         [Log]
         private static void RequestSongCommand(OnMessageReceivedArgs msgArgs, string[] cmdArgs)
         {
+            if (cmdArgs.Length == 0)
+                throw new InvalidArgumentException('곡명을 입력해주세요!');
+
             var song = string.Join(" ", cmdArgs);
             var name = msgArgs.ChatMessage.DisplayName;
 

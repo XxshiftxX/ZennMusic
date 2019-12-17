@@ -24,6 +24,7 @@ namespace ZennMusic.Managers
             InitializeClient();
         }
 
+        [Log]
         public static void SendMessage(string message) => _client.SendMessage(new JoinedChannel(ConfigManager.ServerID), message);
 
         private static void InitializeClient()
@@ -41,6 +42,8 @@ namespace ZennMusic.Managers
 
         private static void OnMessageReceived(object sender, OnMessageReceivedArgs args)
         {
+            LogManager.Log($"[MessageReceived] <{args.ChatMessage.DisplayName}>: {args.ChatMessage.Message}");
+
             if (!IsValidCommand(args.ChatMessage.Message))
                 return;
 
