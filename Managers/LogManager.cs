@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using MethodDecorator.Fody.Interfaces;
 using System.Reflection;
+using System.Diagnostics;
 
 namespace ZennMusic.Managers
 {
@@ -35,8 +36,8 @@ namespace ZennMusic.Managers
             if (_logger is null)
                 return;
             if (hasTimestamp)
-                message += $"[{CurrentTimeString}] ";
-            
+                message = $"[{CurrentTimeString}] " + message;
+
             var messageBytes = Encoding.UTF8.GetBytes(message + "\n");
             _logger.Write(messageBytes, 0, messageBytes.Length);
             _logger.Flush();

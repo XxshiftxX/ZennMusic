@@ -53,8 +53,12 @@ namespace ZennMusic.Managers
                 .Where(x => (x[0] as string) == name)
                 .FirstOrDefault()
                 ?.Skip(1).Take(2)
-                .Select(x => int.Parse((x as string) ?? "0"))
-                .ToArray() ?? throw new UserNotFoundException(name);
+                .Select(x => (x as string) ?? "0")
+                .Select(x => int.TryParse(x ?? "0", out int i) ? int.Parse(x ?? "0") : 0)
+                .ToList() ?? throw new UserNotFoundException(name);
+
+            if (result.Count < 2)
+                result.Add(1);
 
             return (result[0], result[1]);
         }
